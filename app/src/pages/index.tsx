@@ -1,7 +1,8 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { type NextPage } from "next";
 import Head from "next/head";
+import { useRouter } from "next/router";
 
 import clsx from "clsx";
 
@@ -15,14 +16,24 @@ const Home: NextPage = () => {
   const stackRef = useRef(new Stack<string>(5));
   const [cameraEnabled, setCameraEnabled] = useState(false);
   const [username, setUsername] = useState("");
+  const router = useRouter();
+  const { data: checkCookieData, status: checkCookieStatus } =
+    api.auth.checkCookie.useQuery();
   const {
-    data,
-    isSuccess,
-    isLoading,
-    isError,
+    data: loginData,
+    status: loginStatus,
     mutate: login,
-  } = api.login.useMutation();
-  const isLoggedIn = isSuccess && data?.success;
+  } = api.auth.login.useMutation();
+  const isLoggedIn = loginStatus === "success" && loginData?.success;
+
+  useEffect(() => {
+    if (
+      isLoggedIn ||
+      (checkCookieStatus === "success" && checkCookieData?.success)
+    ) {
+      router.push("/vault");
+    }
+  }, [checkCookieData?.success, checkCookieStatus, isLoggedIn, router]);
 
   // capture a frame from the video stream
   const captureFrame = () => {

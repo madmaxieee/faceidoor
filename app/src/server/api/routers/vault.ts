@@ -9,7 +9,7 @@ const getJpegDataURL = (path: string) => {
   return `data:image/jpeg;base64,${data}`;
 };
 
-const catImage = getJpegDataURL("../../data/cat.jpeg");
+const catImage = getJpegDataURL("src/server/data/cat.jpeg");
 
 export const vaultRouter = createTRPCRouter({
   image: authenticatedProcedure.query(() => {

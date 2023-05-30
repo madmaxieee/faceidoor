@@ -38,27 +38,19 @@ export const authRouter = createTRPCRouter({
         success: true,
       };
     }),
-  checkCookie: publicProcedure
-    .input(
-      z.object({
-        token: z.string(),
-      })
-    )
-    .query(({ input: { token } }) => {
-      const username = redis.get(token);
-      if (!username) {
-        throw new TRPCError({
-          code: "UNAUTHORIZED",
-          message: "Invalid token",
-        });
-        return {
-          success: false,
-        };
-      }
+  checkCookie: publicProcedure.query(({ ctx }) => {
+    const token = ctx.token;
+    if (!token) {
       return {
-        success: true,
+        success: false,
       };
-    }),
+    }
+
+    const username = redis.get(token);
+    return {
+      success: Boolean(username),
+    };
+  }),
 });
 
 async function verify(username: string, images: string[]): Promise<boolean> {
