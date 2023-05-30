@@ -7,7 +7,7 @@ class Stack<T> {
   private size = 0;
 
   constructor(capacity: number) {
-    this.data = new Array(capacity);
+    this.data = new Array<T>(capacity);
     this.capacity = capacity;
   }
 
@@ -40,12 +40,12 @@ class Stack<T> {
     return this.size === 0;
   }
 
-  dumpAll() {
+  dumpAll(): T[] {
     const allData = [];
     while (!this.isEmpty()) {
       allData.push(this.pop());
     }
-    return allData;
+    return allData as T[];
   }
 }
 

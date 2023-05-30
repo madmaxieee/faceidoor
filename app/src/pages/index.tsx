@@ -8,11 +8,21 @@ import clsx from "clsx";
 import Spinner from "@/components/Spinner";
 import useInterval from "@/hooks/useInterval";
 import Stack from "@/utils/Stack";
+import { api } from "@/utils/api";
 
 const Home: NextPage = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const stackRef = useRef(new Stack<string>(5));
   const [cameraEnabled, setCameraEnabled] = useState(false);
+  const [username, setUsername] = useState("");
+  const {
+    data,
+    isSuccess,
+    isLoading,
+    isError,
+    mutate: login,
+  } = api.login.useMutation();
+  const isLoggedIn = isSuccess && data?.success;
 
   // capture a frame from the video stream
   const captureFrame = () => {
@@ -29,12 +39,13 @@ const Home: NextPage = () => {
   };
 
   // send the frame to the server
-  const handleSignIn = async () => {
+  const handleSignIn = () => {
     const dataURI = captureFrame();
     if (dataURI) {
       stackRef.current.push(dataURI);
     }
-    console.log(stackRef.current.dumpAll());
+    const images = stackRef.current.dumpAll();
+    login({ images, username });
   };
 
   const getCamera = () => {
@@ -77,7 +88,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex h-screen w-full flex-col items-center justify-center bg-gray-700 p-24">
-        <div className="mx-auto my-24 flex flex-col items-center justify-center px-6">
+        <div className="mx-auto my-16 flex flex-col items-center justify-center px-6">
           <p className="mb-6 flex items-center text-2xl font-semibold text-gray-900 dark:text-white">
             Face id Vault
           </p>
@@ -99,6 +110,8 @@ const Home: NextPage = () => {
                       name="username"
                       className="focus:ring-primary-600 focus:border-primary-600 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 sm:text-sm"
                       required
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
                     />
                   </div>
                   <button
@@ -141,10 +154,10 @@ const Home: NextPage = () => {
             <div className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-xl border-2 border-blue-500 opacity-50" />
             <div className="absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-2xl border-2 border-blue-200 opacity-50" />
           </div>
-          {/* <p className="text-lg text-gray-400">
+          <p className="text-lg text-gray-400">
             Scanning your face, please wait
           </p>
-          <Spinner /> */}
+          <Spinner />
         </div>
       </main>
       <canvas id="canvas" hidden />
