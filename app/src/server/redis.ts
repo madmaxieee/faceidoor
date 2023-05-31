@@ -1,10 +1,10 @@
-import { createClient } from "redis";
+import { Redis } from "@upstash/redis";
 
-const client = createClient();
+import { env } from "@/env.mjs";
 
-// eslint-disable-next-line no-console
-client.on("error", (err) => console.log("Redis Client Error", err));
-// eslint-disable-next-line no-console
-client.connect().then(() => console.log("Redis Client Connected"));
+const redis = new Redis({
+  url: env.UPSTASH_URL,
+  token: env.UPSTASH_TOKEN,
+});
 
-export default client;
+export default redis;

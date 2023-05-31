@@ -1,5 +1,6 @@
-import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
+
+import { createEnv } from "@t3-oss/env-nextjs";
 
 export const env = createEnv({
   /**
@@ -8,6 +9,11 @@ export const env = createEnv({
    */
   server: {
     NODE_ENV: z.enum(["development", "test", "production"]),
+    SIGNATURE_HASH_ALGORITHM: z.enum(["SHA256"]),
+    FEATURE_EXTRACTOR_URL: z.string().url(),
+    AUTHENTICATOR_URL: z.string().url(),
+    UPSTASH_URL: z.string().url(),
+    UPSTASH_TOKEN: z.string(),
   },
 
   /**
@@ -25,6 +31,11 @@ export const env = createEnv({
    */
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
+    SIGNATURE_HASH_ALGORITHM: process.env.SIGNATURE_HASH_ALGORITHM,
+    FEATURE_EXTRACTOR_URL: process.env.FEATURE_EXTRACTOR_URL,
+    AUTHENTICATOR_URL: process.env.AUTHENTICATOR_URL,
+    UPSTASH_URL: process.env.UPSTASH_URL,
+    UPSTASH_TOKEN: process.env.UPSTASH_TOKEN,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**

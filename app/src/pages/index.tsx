@@ -14,7 +14,7 @@ import { api } from "@/utils/api";
 const Home: NextPage = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const stackRef = useRef(new Stack<string>(5));
-  const [cameraEnabled, setCameraEnabled] = useState(false);
+  const [stage, setStage] = useState<"camera" | "signin" | "signup">("camera");
   const [username, setUsername] = useState("");
   const router = useRouter();
   const { data: checkCookieData, status: checkCookieStatus } =
@@ -24,6 +24,12 @@ const Home: NextPage = () => {
     status: loginStatus,
     mutate: login,
   } = api.auth.login.useMutation();
+  const {
+    data: signupData,
+    status: signupStatus,
+    mutate: signup,
+  } = api.auth.signup.useMutation();
+  const { mutate: sendImage } = api.auth.images.useMutation();
   const isLoggedIn = loginStatus === "success" && loginData?.success;
 
   useEffect(() => {
@@ -59,6 +65,15 @@ const Home: NextPage = () => {
     login({ images, username });
   };
 
+  const handleSignUp = () => {
+    const dataURI = captureFrame();
+    if (dataURI) {
+      stackRef.current.push(dataURI);
+    }
+    const images = stackRef.current.dumpAll();
+    signup({ images, username });
+  };
+
   const getCamera = () => {
     if (navigator.mediaDevices.getUserMedia === undefined) {
       return;
@@ -74,7 +89,7 @@ const Home: NextPage = () => {
           return;
         }
         videoRef.current.srcObject = stream;
-        setCameraEnabled(true);
+        setStage("signin");
       })
       .catch((err) => {
         console.error(err);
@@ -105,7 +120,20 @@ const Home: NextPage = () => {
           </p>
           <div className="w-screen max-w-xl rounded-lg bg-white shadow dark:border dark:border-gray-700 dark:bg-gray-800">
             <div className="space-y-4 p-6 sm:p-8 md:space-y-6">
-              {cameraEnabled ? (
+              {stage === "camera" && (
+                <>
+                  <h1 className="mb-12 text-xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white md:text-2xl">
+                    You must enable your camera to continue
+                  </h1>
+                  <button
+                    className="w-full rounded-lg bg-blue-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    onClick={getCamera}
+                  >
+                    Enable camera
+                  </button>
+                </>
+              )}
+              {stage === "signin" && (
                 <>
                   <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white md:text-2xl">
                     Unlock your vault
@@ -119,30 +147,68 @@ const Home: NextPage = () => {
                     </label>
                     <input
                       name="username"
-                      className="focus:ring-primary-600 focus:border-primary-600 block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 sm:text-sm"
+                      className="block w-full rounded-lg border border-gray-600 bg-gray-700 p-2.5  text-white placeholder-gray-400 focus:border-blue-500 sm:text-sm"
                       required
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                     />
                   </div>
                   <button
-                    className="bg-primary-600 hover:bg-primary-700 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4"
+                    className="w-full rounded-lg bg-blue-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300"
                     onClick={handleSignIn}
                   >
                     Sign in
                   </button>
+                  <p className="text-sm font-light text-gray-400">
+                    Don't have an account yet? &nbsp;
+                    <span className="font-medium text-blue-500">
+                      <button
+                        className="hover:underline"
+                        onClick={() => setStage("signup")}
+                      >
+                        Sign up
+                      </button>
+                    </span>
+                  </p>
                 </>
-              ) : (
+              )}
+              {stage === "signup" && (
                 <>
-                  <h1 className="mb-12 text-xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white md:text-2xl">
-                    You must enable your camera to continue
+                  <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white md:text-2xl">
+                    Create your vault
                   </h1>
+                  <div>
+                    <label
+                      htmlFor="username"
+                      className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                      Your account
+                    </label>
+                    <input
+                      name="username"
+                      className="block w-full rounded-lg border border-gray-600 bg-gray-700 p-2.5  text-white placeholder-gray-400 focus:border-blue-500 sm:text-sm"
+                      required
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                    />
+                  </div>
                   <button
-                    className="bg-primary-600 hover:bg-primary-700 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 w-full rounded-lg px-5 py-2.5 text-center text-sm font-medium text-white focus:outline-none focus:ring-4"
-                    onClick={getCamera}
+                    className="w-full rounded-lg bg-blue-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                    onClick={handleSignUp}
                   >
-                    Enable camera
+                    Sign up
                   </button>
+                  <p className="text-sm font-light text-gray-400">
+                    Already have an account? &nbsp;
+                    <span className="font-medium text-blue-500">
+                      <button
+                        className="hover:underline"
+                        onClick={() => setStage("signin")}
+                      >
+                        Sign in
+                      </button>
+                    </span>
+                  </p>
                 </>
               )}
             </div>
@@ -151,7 +217,7 @@ const Home: NextPage = () => {
         <div
           className={clsx(
             "flex w-96 flex-col items-center justify-center gap-4",
-            cameraEnabled ? "" : "hidden"
+            stage !== "camera" ? "" : "hidden"
           )}
         >
           <div className="relative">
@@ -169,9 +235,9 @@ const Home: NextPage = () => {
             Scanning your face, please wait
           </p>
           <Spinner />
+          <canvas id="canvas" hidden />
         </div>
       </main>
-      <canvas id="canvas" hidden />
     </>
   );
 };

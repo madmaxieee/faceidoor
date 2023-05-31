@@ -33,7 +33,7 @@ type CreateContextOptions = CreateNextContextOptions;
  *
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
-const createInnerTRPCContext = (_opts: CreateContextOptions) => {
+const createInnerTRPCContext = async (_opts: CreateContextOptions) => {
   const { req, res } = _opts;
 
   const token = req.cookies?.token;
@@ -41,7 +41,7 @@ const createInnerTRPCContext = (_opts: CreateContextOptions) => {
     return { token: null, res };
   }
 
-  const username = redis.get(token);
+  const username = await redis.get(token);
   if (!username) {
     return { token: null, res };
   }
