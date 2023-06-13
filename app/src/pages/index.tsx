@@ -29,7 +29,7 @@ const Home: NextPage = () => {
     status: signupStatus,
     mutate: signup,
   } = api.auth.signup.useMutation();
-  const { mutate: sendImage } = api.auth.images.useMutation();
+  // const { mutate: sendImage } = api.auth.images.useMutation();
   const isLoggedIn = loginStatus === "success" && loginData?.success;
 
   useEffect(() => {
@@ -113,7 +113,12 @@ const Home: NextPage = () => {
         <meta name="description" content="MFA demo app" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="flex h-screen w-full flex-col items-center justify-center bg-gray-700 p-24">
+      <main
+        className={clsx(
+          "flex h-screen w-full flex-col items-center justify-center p-24 transition-colors",
+          stage === "signup" ? "bg-cyan-800" : "bg-gray-700"
+        )}
+      >
         <div className="mx-auto my-16 flex flex-col items-center justify-center px-6">
           <p className="mb-6 flex items-center text-2xl font-semibold text-gray-900 dark:text-white">
             Face id Vault
@@ -193,7 +198,7 @@ const Home: NextPage = () => {
                     />
                   </div>
                   <button
-                    className="w-full rounded-lg bg-blue-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                    className="w-full rounded-lg bg-cyan-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-cyan-300"
                     onClick={handleSignUp}
                   >
                     Sign up

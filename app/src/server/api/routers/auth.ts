@@ -33,6 +33,10 @@ const LoginResponseSchema = z.object({
 
 type LoginResponse = z.infer<typeof LoginResponseSchema>;
 
+const FaceFeaturesSchema = z.array(z.number().int());
+
+type FaceFeatures = z.infer<typeof FaceFeaturesSchema>;
+
 export const authRouter = createTRPCRouter({
   login: publicProcedure
     .input(
@@ -42,7 +46,7 @@ export const authRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input: { username, images }, ctx }) => {
-      if (!verify(username, images)) {
+      if (!(await verify(username, images))) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "Invalid username or face features",
@@ -68,7 +72,7 @@ export const authRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input: { username, images } }) => {
-      if (!register(username, images)) {
+      if (!(await register(username, images))) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "Invalid username or face features",
@@ -87,8 +91,6 @@ export const authRouter = createTRPCRouter({
   checkCookie: publicProcedure.query(async ({ ctx }) => {
     const token = ctx.token;
 
-    console.log(token);
-
     if (!token) {
       return {
         success: false,
@@ -97,7 +99,6 @@ export const authRouter = createTRPCRouter({
 
     const username = await redis.get(`${CSRF_PREFIX}${token}`);
 
-    console.log(username);
     return {
       success: Boolean(username),
     };
@@ -150,7 +151,7 @@ async function verify(username: string, images: string[]): Promise<boolean> {
 }
 
 async function register(username: string, images: string[]): Promise<boolean> {
-  const features = await getFaceFeatures(images);
+  const features = await registerFaceFeatures(images);
   const featuresHash = hashFeatures(features);
   const credentials: Credentials = {
     username,
@@ -182,11 +183,34 @@ async function register(username: string, images: string[]): Promise<boolean> {
   return verified;
 }
 
-async function getFaceFeatures(images: string[]): Promise<number[]> {
-  // TODO: get face features from images
-  /* eslint-disable-next-line no-console */
-  // console.log(images);
-  return [1, 2, 3];
+async function getFaceFeatures(images: string[]): Promise<FaceFeatures> {
+  const res = await fetch(`${env.FEATURE_EXTRACTOR_URL}/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ images }),
+  });
+
+  const features = await res.json();
+  FaceFeaturesSchema.parse(features);
+
+  return features;
+}
+
+async function registerFaceFeatures(images: string[]): Promise<FaceFeatures> {
+  const res = await fetch(`${env.FEATURE_EXTRACTOR_URL}/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ images }),
+  });
+
+  const features = await res.json();
+  FaceFeaturesSchema.parse(features);
+
+  return features;
 }
 
 function verifyChallenge(
