@@ -13,6 +13,8 @@ import { ZodError } from "zod";
 import { TRPCError, initTRPC } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 
+import { env } from "@/env.mjs";
+
 /**
  * 1. CONTEXT
  *
@@ -41,7 +43,7 @@ const createInnerTRPCContext = async (_opts: CreateContextOptions) => {
     return { token: null, res };
   }
 
-  const username = await redis.get(token);
+  const username = await redis.get(`${env.CSRF_PREFIX}${token}`);
   if (!username) {
     return { token: null, res };
   }

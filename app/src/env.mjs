@@ -12,8 +12,10 @@ export const env = createEnv({
     SIGNATURE_HASH_ALGORITHM: z.enum(["SHA256"]),
     FEATURE_EXTRACTOR_URL: z.string().url(),
     AUTHENTICATOR_URL: z.string().url(),
-    UPSTASH_URL: z.string().url(),
-    UPSTASH_TOKEN: z.string(),
+    CSRF_PREFIX: z.string(),
+    PUBKEY_PREFIX: z.string(),
+    // UPSTASH_URL: z.string().url(),
+    // UPSTASH_TOKEN: z.string(),
   },
 
   /**
@@ -34,8 +36,10 @@ export const env = createEnv({
     SIGNATURE_HASH_ALGORITHM: process.env.SIGNATURE_HASH_ALGORITHM,
     FEATURE_EXTRACTOR_URL: process.env.FEATURE_EXTRACTOR_URL,
     AUTHENTICATOR_URL: process.env.AUTHENTICATOR_URL,
-    UPSTASH_URL: process.env.UPSTASH_URL,
-    UPSTASH_TOKEN: process.env.UPSTASH_TOKEN,
+    CSRF_PREFIX: process.env.CSRF_PREFIX,
+    PUBKEY_PREFIX: process.env.PUBKEY_PREFIX,
+    // UPSTASH_URL: process.env.UPSTASH_URL,
+    // UPSTASH_TOKEN: process.env.UPSTASH_TOKEN,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
