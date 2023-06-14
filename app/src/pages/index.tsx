@@ -145,7 +145,7 @@ const Home: NextPage = () => {
   }, 1000);
 
   const onUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUsername(e.target.value.replaceAll(" ", ""));
+    setUsername(e.target.value.replaceAll(/[\s/]/g, ""));
   };
 
   return (
@@ -210,9 +210,7 @@ const Home: NextPage = () => {
                           )}
                           onClick={handleSignIn}
                           disabled={
-                            loginStatus === "loading" ||
-                            loginStatus === "error" ||
-                            username === ""
+                            loginStatus === "loading" || username === ""
                           }
                         >
                           Sign in
@@ -268,9 +266,7 @@ const Home: NextPage = () => {
                           )}
                           onClick={handleSignUp}
                           disabled={
-                            signupStatus === "loading" ||
-                            signupStatus === "error" ||
-                            username === ""
+                            signupStatus === "loading" || username === ""
                           }
                         >
                           Sign up

@@ -103,6 +103,22 @@ export const authRouter = createTRPCRouter({
       success: Boolean(username),
     };
   }),
+
+  logout: publicProcedure.mutation(async ({ ctx }) => {
+    const token = ctx.token;
+
+    if (!token) {
+      return {
+        success: false,
+      };
+    }
+
+    await redis.del(`${CSRF_PREFIX}${token}`);
+
+    return {
+      success: true,
+    };
+  }),
 });
 
 async function sendImage(images: string[]): Promise<string> {
