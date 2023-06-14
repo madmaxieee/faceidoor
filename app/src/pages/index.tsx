@@ -5,17 +5,18 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 
 import clsx from "clsx";
-import { log } from "console";
 
 import { Tooltip } from "@radix-ui/react-tooltip";
 
 import Spinner from "@/components/Spinner";
+import { Toaster } from "@/components/Toaster";
 import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ToolTip";
 import { useInterval } from "@/hooks";
+import { useToast } from "@/hooks/useToast";
 import Stack from "@/utils/Stack";
 import { api } from "@/utils/api";
 
@@ -38,16 +39,45 @@ const Home: NextPage = () => {
     mutate: signup,
   } = api.auth.signup.useMutation();
   // const { mutate: sendImage } = api.auth.images.useMutation();
-  const isLoggedIn = loginStatus === "success" && loginData?.success;
+  const isLoggedIn =
+    (loginStatus === "success" && loginData?.success) ||
+    (checkCookieStatus === "success" && checkCookieData?.success);
+
+  const { toast } = useToast();
 
   useEffect(() => {
-    if (
-      isLoggedIn ||
-      (checkCookieStatus === "success" && checkCookieData?.success)
-    ) {
+    if (loginStatus === "success" && loginData?.success) {
+      toast({
+        title: "Success!",
+        description: "You have successfully logged in",
+      });
+    } else if (loginStatus === "error") {
+      toast({
+        title: "Error!",
+        description: "Failed to login",
+      });
+    }
+  }, [loginData?.success, loginStatus, toast]);
+
+  useEffect(() => {
+    if (signupStatus === "success" && signupData?.success) {
+      toast({
+        title: "Success!",
+        description: "You have successfully signed up",
+      });
+    } else if (signupStatus === "error") {
+      toast({
+        title: "Error!",
+        description: "Failed to sign up",
+      });
+    }
+  }, [signupStatus, signupData, toast]);
+
+  useEffect(() => {
+    if (isLoggedIn) {
       router.push("/vault");
     }
-  }, [checkCookieData?.success, checkCookieStatus, isLoggedIn, router]);
+  }, [isLoggedIn, router]);
 
   // capture a frame from the video stream
   const captureFrame = () => {
@@ -297,6 +327,7 @@ const Home: NextPage = () => {
         </div>
         <canvas id="canvas" hidden />
       </main>
+      <Toaster />
     </>
   );
 };
