@@ -144,6 +144,10 @@ const Home: NextPage = () => {
     }
   }, 1000);
 
+  const onUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUsername(e.target.value.replaceAll(" ", ""));
+  };
+
   return (
     <>
       <Head>
@@ -193,7 +197,7 @@ const Home: NextPage = () => {
                       className="block w-full rounded-lg border border-gray-600 bg-gray-700 p-2.5  text-white placeholder-gray-400 focus:border-blue-500 sm:text-sm"
                       required
                       value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      onChange={onUsernameChange}
                     />
                   </div>
                   <TooltipProvider>
@@ -251,7 +255,7 @@ const Home: NextPage = () => {
                       className="block w-full rounded-lg border border-gray-600 bg-gray-700 p-2.5  text-white placeholder-gray-400 focus:border-blue-500 sm:text-sm"
                       required
                       value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      onChange={onUsernameChange}
                     />
                   </div>
                   <TooltipProvider>
