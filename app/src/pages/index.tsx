@@ -5,8 +5,16 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 
 import clsx from "clsx";
+import { log } from "console";
+
+import { Tooltip } from "@radix-ui/react-tooltip";
 
 import Spinner from "@/components/Spinner";
+import {
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ToolTip";
 import { useInterval } from "@/hooks";
 import Stack from "@/utils/Stack";
 import { api } from "@/utils/api";
@@ -119,10 +127,10 @@ const Home: NextPage = () => {
           stage === "signup" ? "bg-cyan-800" : "bg-gray-700"
         )}
       >
-        <div className="mx-auto my-16 flex flex-col items-center justify-center px-6">
-          <p className="mb-6 flex items-center text-2xl font-semibold text-gray-900 dark:text-white">
+        <div className="mx-auto my-12 flex flex-col items-center justify-center px-6">
+          <h1 className="mb-6 flex items-center text-2xl font-semibold text-gray-900 dark:text-white">
             Face id Vault
-          </p>
+          </h1>
           <div className="w-screen max-w-xl rounded-lg bg-white shadow dark:border dark:border-gray-700 dark:bg-gray-800">
             <div className="space-y-4 p-6 sm:p-8 md:space-y-6">
               {stage === "camera" && (
@@ -148,7 +156,7 @@ const Home: NextPage = () => {
                       htmlFor="username"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      Your account
+                      Your account <span className="text-red-500">*</span>
                     </label>
                     <input
                       name="username"
@@ -158,15 +166,34 @@ const Home: NextPage = () => {
                       onChange={(e) => setUsername(e.target.value)}
                     />
                   </div>
-                  <button
-                    className="w-full rounded-lg bg-blue-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300"
-                    onClick={handleSignIn}
-                  >
-                    Sign in
-                  </button>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger className="w-full">
+                        <button
+                          className={clsx(
+                            "w-36 rounded-lg bg-blue-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300",
+                            "disabled:cursor-not-allowed disabled:opacity-50"
+                          )}
+                          onClick={handleSignIn}
+                          disabled={
+                            loginStatus === "loading" ||
+                            loginStatus === "error" ||
+                            username === ""
+                          }
+                        >
+                          Sign in
+                        </button>
+                      </TooltipTrigger>
+                      {username === "" && (
+                        <TooltipContent className="-translate-y-6 border-gray-500 bg-gray-900 text-white opacity-50">
+                          <p>You need to fill in your username</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
                   <p className="text-sm font-light text-gray-400">
                     Don't have an account yet? &nbsp;
-                    <span className="font-medium text-blue-500">
+                    <span className="font-medium text-cyan-500">
                       <button
                         className="hover:underline"
                         onClick={() => setStage("signup")}
@@ -187,7 +214,7 @@ const Home: NextPage = () => {
                       htmlFor="username"
                       className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                     >
-                      Your account
+                      Your account <span className="text-red-500">*</span>{" "}
                     </label>
                     <input
                       name="username"
@@ -197,12 +224,31 @@ const Home: NextPage = () => {
                       onChange={(e) => setUsername(e.target.value)}
                     />
                   </div>
-                  <button
-                    className="w-full rounded-lg bg-cyan-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-cyan-300"
-                    onClick={handleSignUp}
-                  >
-                    Sign up
-                  </button>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger className="w-full">
+                        <button
+                          className={clsx(
+                            "w-36 rounded-lg bg-cyan-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-cyan-700 focus:outline-none focus:ring-4 focus:ring-cyan-300",
+                            "disabled:cursor-not-allowed disabled:opacity-50"
+                          )}
+                          onClick={handleSignUp}
+                          disabled={
+                            signupStatus === "loading" ||
+                            signupStatus === "error" ||
+                            username === ""
+                          }
+                        >
+                          Sign up
+                        </button>
+                      </TooltipTrigger>
+                      {username === "" && (
+                        <TooltipContent className="-translate-y-6 border-gray-500 bg-gray-900 text-white opacity-50">
+                          <p>You need to fill in your username</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
                   <p className="text-sm font-light text-gray-400">
                     Already have an account? &nbsp;
                     <span className="font-medium text-blue-500">
@@ -225,23 +271,31 @@ const Home: NextPage = () => {
             stage !== "camera" ? "" : "hidden"
           )}
         >
+          <p className="text-sm text-gray-400">
+            Scanning your face, please keep your face in the box.
+          </p>
           <div className="relative">
             <video
               id="face"
               ref={videoRef}
               width="720"
               autoPlay
-              className="rounded-2xl"
+              className={clsx(
+                "scale-x-[-1] rounded-2xl",
+                (loginStatus === "loading" || signupStatus === "loading") &&
+                  "opacity-50 blur-sm"
+              )}
             />
             <div className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-xl border-2 border-blue-500 opacity-50" />
             <div className="absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-2xl border-2 border-blue-200 opacity-50" />
+            {(loginStatus === "loading" || signupStatus === "loading") && (
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                <Spinner />
+              </div>
+            )}
           </div>
-          <p className="text-lg text-gray-400">
-            Scanning your face, please wait
-          </p>
-          <Spinner />
-          <canvas id="canvas" hidden />
         </div>
+        <canvas id="canvas" hidden />
       </main>
     </>
   );

@@ -9,6 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@radix-ui/react-tooltip": "^1.0.6",
     "@t3-oss/env-nextjs": "^0.3.1",
     "@tanstack/react-query": "^4.29.7",
     "@trpc/client": "^10.26.0",
@@ -23,6 +24,7 @@
     "react-dom": "18.2.0",
     "redis": "^4.6.7",
     "superjson": "1.12.2",
+    "tailwind-merge": "^1.13.1",
     "zod": "^3.21.4"
   },
   "devDependencies": {
@@ -38,7 +40,6 @@
     "eslint": "^8.40.0",
     "eslint-config-next": "^13.4.2",
     "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-prettier": "^4.2.1",
     "postcss": "^8.4.21",
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.2.8",
