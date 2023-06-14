@@ -113,6 +113,18 @@ const isLoggedIn = t.middleware(async ({ ctx, next }) => {
       message: "You must be logged in to perform this action.",
     });
   }
+
+  const token = ctx.token;
+
+  const username = await redis.get(`${env.CSRF_PREFIX}${token}`);
+
+  if (!username) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You must be logged in to perform this action.",
+    });
+  }
+
   return next();
 });
 

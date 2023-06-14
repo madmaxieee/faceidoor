@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 import clsx from "clsx";
 
 import Spinner from "@/components/Spinner";
-import useInterval from "@/hooks/useInterval";
+import { useInterval } from "@/hooks";
 import Stack from "@/utils/Stack";
 import { api } from "@/utils/api";
 
