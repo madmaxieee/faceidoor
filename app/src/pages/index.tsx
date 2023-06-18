@@ -142,7 +142,7 @@ const Home: NextPage = () => {
     if (dataURI) {
       stackRef.current.push(dataURI);
     }
-  }, 1000);
+  }, 600);
 
   const onUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(e.target.value.replaceAll(/[\s/]/g, ""));
